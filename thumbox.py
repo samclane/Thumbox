@@ -175,12 +175,12 @@ class Thumby:
             def drawSprite(self, sprite):
                 surface = pygame.Surface((sprite.width, sprite.height), pygame.SRCALPHA, 32)
                 bits_per_byte = 8
-                for i in range((sprite.width * sprite.height) // bits_per_byte + 1):
+                for i in range((sprite.width * (sprite.height + 7) // 8)):
                     byte = sprite.bitmapData[i] if len(sprite.bitmapData) > i else 0
                     for j in range(bits_per_byte):
                         idx = i * bits_per_byte + j
-                        x = idx % sprite.width
-                        y = idx // sprite.width
+                        x = i % sprite.width
+                        y = 8 * (i // sprite.width) + j
 
                         # Get the color value from the bytearray (white or black)
                         bit = (byte >> j) & 1
