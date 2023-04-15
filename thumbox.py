@@ -182,7 +182,7 @@ class Thumby:
                         x = idx % sprite.width
                         y = idx // sprite.width
 
-                        # Get the color value from the bytearray (white or transparent)
+                        # Get the color value from the bytearray (white or black)
                         bit = (byte >> j) & 1
                         color = (255, 255, 255, 255) if bit else (0, 0, 0, 0)
                         if sprite.key == -1:

@@ -7,8 +7,9 @@ Thumbox is designed to aid game devs in distributing their thumby games on Thumb
 
 ### How do I use it?
 
-1. Download thumbox.py
+1. Download `thumbox.py`
 2. Place it in the same directory as your `game.py`
+    a. If you don't have your game downloaded yet, create a `game.py` file and copy the code from the online emulator into the file.
 3. Monkey-patch your game to use Thumbox insead of Thumby, like so:
 
 ```python
