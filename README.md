@@ -5,8 +5,11 @@
 Thumbox is designed to aid game devs in distributing their thumby games on Thumby, as well as on Steam. It is a drop-in emulator for your game, which allows you to test your game on your PC. 
 
 
-### How do I use it?
+### Requirements
+1. Python 3.9 or higher
+2. Pygame 2.3.0 or higher
 
+### How do I use it?
 1. Download `thumbox.py`
 2. Place it in the same directory as your `game.py`
     a. If you don't have your game downloaded yet, create a `game.py` file and copy the code from the online emulator into the file.
