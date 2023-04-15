@@ -24,5 +24,7 @@ button = thumby.button
 # rest of code
 ```
 
+To see a full example, check out the `example.py` game in this folder.
+
 ### Contributing
 We are in development and really need contributors to reach 100% completion. Feel free to reach out to me on Github or make a PR
