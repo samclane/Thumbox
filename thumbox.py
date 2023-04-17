@@ -10,6 +10,11 @@ pygame.init()
 # Thumby emulator module
 
 
+class Time:
+    def tick_ms(self):
+        return int(time.time() * 1000)
+
+
 class Thumby:
     def __init__(self):
         self.hardware = self.ThumbyHardware()
