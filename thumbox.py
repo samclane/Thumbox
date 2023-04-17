@@ -9,10 +9,11 @@ pygame.init()
 
 # Thumby emulator module
 
+
 class Thumby:
     def __init__(self):
         self.hardware = self.ThumbyHardware()
-        
+
         self.button = self.ThumbyButton()
         self.buttonA = self.button.buttonA
         self.buttonB = self.button.buttonB
@@ -22,15 +23,15 @@ class Thumby:
         self.buttonR = self.button.buttonR
 
         self.graphics = self.ThumbyGraphics()
-        
+
         self.display = self.graphics.display
         # self.sprite = self.ThumbySprite()
         self.audio = self.ThumbyAudio()
-        
+
         self.link = self.ThumbyLink()
-        
+
         self.saveData = self.ThumbySaves()
-            
+
     class ThumbyHardware:
         def reset(self):
             raise NotImplementedError()
@@ -84,13 +85,23 @@ class Thumby:
         for event in pygame.event.get():
             pass
         keys = pygame.key.get_pressed()
-        return keys[pygame.K_UP] or keys[pygame.K_DOWN] or keys[pygame.K_LEFT] or keys[pygame.K_RIGHT]
+        return (
+            keys[pygame.K_UP]
+            or keys[pygame.K_DOWN]
+            or keys[pygame.K_LEFT]
+            or keys[pygame.K_RIGHT]
+        )
 
     def dpadJustPressed(self):
         events = pygame.event.get()
         for event in events:
             if event.type == pygame.KEYDOWN:
-                if event.key in [pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT]:
+                if event.key in [
+                    pygame.K_UP,
+                    pygame.K_DOWN,
+                    pygame.K_LEFT,
+                    pygame.K_RIGHT,
+                ]:
                     return True
         return False
 
@@ -99,8 +110,11 @@ class Thumby:
 
     def actionJustPressed(self):
         return self.buttonA.justPressed() or self.buttonB.justPressed()
+
     class Sprite:
-        def __init__(self, width, height, bitmapData, x=0, y=0, key=-1, mirrorX=0, mirrorY=0):
+        def __init__(
+            self, width, height, bitmapData, x=0, y=0, key=-1, mirrorX=0, mirrorY=0
+        ):
             self.width = width
             self.height = height
             self.bitmapData = bitmapData
@@ -128,7 +142,9 @@ class Thumby:
 
                 self._fps = 0  # non-limiting
                 self._surface = pygame.Surface((self.width, self.height))
-                self._screen = pygame.display.set_mode((self.width * 10, self.height * 10))
+                self._screen = pygame.display.set_mode(
+                    (self.width * 10, self.height * 10)
+                )
                 self.setFont("font5x7.bin", 5, 7, 1)
 
             def drawText(self, stringToPrint, x, y, color):
@@ -139,22 +155,31 @@ class Thumby:
                     charBitmap = ord(char) - 0x20
 
                     if 0 <= charBitmap <= maxChar:
-                        if 0 < x + self.textWidth < screenWidth and 0 < y + self.textHeight < screenHeight:
-                            sprite = np.zeros((self.textHeight, self.textWidth), dtype=bool)
+                        if (
+                            0 < x + self.textWidth < screenWidth
+                            and 0 < y + self.textHeight < screenHeight
+                        ):
+                            sprite = np.zeros(
+                                (self.textHeight, self.textWidth), dtype=bool
+                            )
                             self.textBitmapFile.seek(charBitmap * self.textWidth)
                             self.textBitmap = self.textBitmapFile.read(self.textWidth)
                             for i in range(self.textHeight):
                                 for j in range(self.textWidth):
-                                    # bit = (self.textBitmap[charBitmap * self.textWidth + (i >> 3) * self.textWidth + j] & (1 << (i & 0x07))) != 0 if len(self.textBitmap) > charBitmap * self.textWidth + (i >> 3) * self.textWidth + j else 1
-                                    sprite[i, j] = (self.textBitmap[(i >> 3) * self.textWidth + j] & (1 << (i & 0x07))) != 0
+                                    sprite[i, j] = (
+                                        self.textBitmap[(i >> 3) * self.textWidth + j]
+                                        & (1 << (i & 0x07))
+                                    ) != 0
 
-                            spriteSurface = pygame.Surface((self.textWidth, self.textHeight), pygame.SRCALPHA, 32)
+                            spriteSurface = pygame.Surface(
+                                (self.textWidth, self.textHeight), pygame.SRCALPHA, 32
+                            )
                             spriteSurface.fill((0, 0, 0, 0))
                             whiteColor = (255, 255, 255, 255)
                             blackColor = (0, 0, 0, 255)
                             for i in range(self.textHeight):
                                 for j in range(self.textWidth):
-                                    if sprite[i, j]:  # this is always false
+                                    if sprite[i, j]:
                                         if color == 0:
                                             spriteSurface.set_at((j, i), blackColor)
                                         else:
@@ -163,10 +188,9 @@ class Thumby:
                     self._surface.blit(spriteSurface, (x, y))
                     x += self.textWidth + self.textSpaceWidth
 
-
             def setFont(self, fontFilePath, width, height, space):
                 self.textBitmapSource = fontFilePath
-                self.textBitmapFile = open(self.textBitmapSource, 'rb')
+                self.textBitmapFile = open(self.textBitmapSource, "rb")
                 self.textWidth = width
                 self.textHeight = height
                 self.textSpaceWidth = space
@@ -174,7 +198,9 @@ class Thumby:
                 self.textCharCount = os.stat(self.textBitmapSource)[6] // self.textWidth
 
             def update(self):
-                upscaled_surface = pygame.transform.scale(self._surface, (self.width * 10, self.height * 10))
+                upscaled_surface = pygame.transform.scale(
+                    self._surface, (self.width * 10, self.height * 10)
+                )
                 self._screen.blit(upscaled_surface, (0, 0))
                 pygame.display.flip()
                 if self._fps != 0:
@@ -194,7 +220,7 @@ class Thumby:
                 adjusted_surface = pygame.surfarray.make_surface(adjusted_pixels)
                 self._surface.blit(adjusted_surface, (0, 0))
 
-            def setPixel(self, x: int , y: int, color: Literal[0, 1]):
+            def setPixel(self, x: int, y: int, color: Literal[0, 1]):
                 if color == 1:
                     self._surface.set_at((x, y), (255, 255, 255))
                 elif color == 0:
@@ -216,16 +242,35 @@ class Thumby:
                 pygame.draw.rect(self._surface, color, (x, y, w, h), 1)
 
             def blit(self, bitmapData, x, y, width, height, key, mirrorX, mirrorY):
-                sprite = Thumby.Sprite(width, height, bitmapData, x, y, key, mirrorX, mirrorY)
+                sprite = Thumby.Sprite(
+                    width, height, bitmapData, x, y, key, mirrorX, mirrorY
+                )
                 self.drawSprite(sprite)
 
-            def blitWithMask(self, bitmapData, x, y, width, height, key, mirrorX, mirrorY, maskBitmapData):
-                sprite = Thumby.Sprite(width, height, bitmapData, x, y, key, mirrorX, mirrorY)
-                maskSprite = Thumby.Sprite(width, height, maskBitmapData, x, y, key, mirrorX, mirrorY)
+            def blitWithMask(
+                self,
+                bitmapData,
+                x,
+                y,
+                width,
+                height,
+                key,
+                mirrorX,
+                mirrorY,
+                maskBitmapData,
+            ):
+                sprite = Thumby.Sprite(
+                    width, height, bitmapData, x, y, key, mirrorX, mirrorY
+                )
+                maskSprite = Thumby.Sprite(
+                    width, height, maskBitmapData, x, y, key, mirrorX, mirrorY
+                )
                 self.drawSpriteWithMask(sprite, maskSprite)
 
             def drawSprite(self, sprite):
-                surface = pygame.Surface((sprite.width, sprite.height), pygame.SRCALPHA, 32)
+                surface = pygame.Surface(
+                    (sprite.width, sprite.height), pygame.SRCALPHA, 32
+                )
                 bits_per_byte = 8
                 for i in range((sprite.width * (sprite.height + 7) // 8)):
                     byte = sprite.bitmapData[i] if len(sprite.bitmapData) > i else 0
@@ -243,15 +288,25 @@ class Thumby:
                         elif sprite.key != bit:
                             surface.set_at((x, y), color)
 
-                self._surface.blit(surface, (sprite.x, sprite.y), (0, 0, sprite.width, sprite.height))
+                self._surface.blit(
+                    surface, (sprite.x, sprite.y), (0, 0, sprite.width, sprite.height)
+                )
 
             def drawSpriteWithMask(self, sprite, maskSprite):
-                surface = pygame.Surface((sprite.width, sprite.height), pygame.SRCALPHA, 32)
-                mask_surface = pygame.Surface((sprite.width, sprite.height), pygame.SRCALPHA, 32)
+                surface = pygame.Surface(
+                    (sprite.width, sprite.height), pygame.SRCALPHA, 32
+                )
+                mask_surface = pygame.Surface(
+                    (sprite.width, sprite.height), pygame.SRCALPHA, 32
+                )
                 bits_per_byte = 8
                 for i in range((sprite.width * (sprite.height + 7) // 8)):
                     byte = sprite.bitmapData[i] if len(sprite.bitmapData) > i else 0
-                    mask_byte = maskSprite.bitmapData[i] if len(maskSprite.bitmapData) > i else 0
+                    mask_byte = (
+                        maskSprite.bitmapData[i]
+                        if len(maskSprite.bitmapData) > i
+                        else 0
+                    )
 
                     for j in range(bits_per_byte):
                         idx = i * bits_per_byte + j
@@ -272,7 +327,9 @@ class Thumby:
                             mask_surface.set_at((x, y), mask_color)
 
                 surface.blit(mask_surface, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
-                self._surface.blit(surface, (sprite.x, sprite.y), (0, 0, sprite.width, sprite.height))
+                self._surface.blit(
+                    surface, (sprite.x, sprite.y), (0, 0, sprite.width, sprite.height)
+                )
 
     class ThumbyAudio:
         def __init__(self):
@@ -281,7 +338,11 @@ class Thumby:
         def play(self, freq, duration):
             self._freq = freq
             sample_rate = 44100  # sampling rate in Hz
-            samples = (np.sin(2*np.pi*np.arange(sample_rate*duration)*freq/sample_rate)).astype(np.float32)
+            samples = (
+                np.sin(
+                    2 * np.pi * np.arange(sample_rate * duration) * freq / sample_rate
+                )
+            ).astype(np.float32)
             pygame.mixer.init(frequency=sample_rate, size=-16, channels=1)
             sound = pygame.sndarray.make_sound(samples)
             sound.play()
