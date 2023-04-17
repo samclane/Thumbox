@@ -2,6 +2,7 @@ from typing import Literal
 import pygame
 import time
 import os
+import numpy as np
 import json
 
 pygame.init()
@@ -75,7 +76,10 @@ class Thumby:
         return False
 
     def dpadPressed(self):
-        raise NotImplementedError()
+        for event in pygame.event.get():
+            pass
+        keys = pygame.key.get_pressed()
+        return keys[pygame.K_UP] or keys[pygame.K_DOWN] or keys[pygame.K_LEFT] or keys[pygame.K_RIGHT]
 
     def dpadJustPressed(self):
         raise NotImplementedError()
@@ -107,7 +111,6 @@ class Thumby:
         def __init__(self):
             self.display = self.Display()
 
-
         class Display:
             def __init__(self):
                 self.width = 72
@@ -116,15 +119,49 @@ class Thumby:
                 self._fps = 0  # non-limiting
                 self._surface = pygame.Surface((self.width, self.height))
                 self._screen = pygame.display.set_mode((self.width * 10, self.height * 10))
-                self._font = pygame.font.SysFont("monospace", 8)
+                self.setFont("font5x7.bin", 5, 7, 1)
 
-            def drawText(self, string, x, y, color):
-                # pygame hack
-                text = self._font.render(string, False, (255, 255, 255) if color == 1 else (0, 0, 0))
-                self._surface.blit(text, (x, y))
+            def drawText(self, stringToPrint, x, y, color):
+                screenWidth, screenHeight = self._surface.get_size()
+                maxChar = self.textCharCount
+
+                for char in stringToPrint:
+                    charBitmap = ord(char) - 0x20
+
+                    if 0 <= charBitmap <= maxChar:
+                        if 0 < x + self.textWidth < screenWidth and 0 < y + self.textHeight < screenHeight:
+                            sprite = np.zeros((self.textHeight, self.textWidth), dtype=bool)
+                            self.textBitmapFile.seek(charBitmap * self.textWidth)
+                            self.textBitmap = self.textBitmapFile.read(self.textWidth)
+                            for i in range(self.textHeight):
+                                for j in range(self.textWidth):
+                                    # bit = (self.textBitmap[charBitmap * self.textWidth + (i >> 3) * self.textWidth + j] & (1 << (i & 0x07))) != 0 if len(self.textBitmap) > charBitmap * self.textWidth + (i >> 3) * self.textWidth + j else 1
+                                    sprite[i, j] = (self.textBitmap[(i >> 3) * self.textWidth + j] & (1 << (i & 0x07))) != 0
+
+                            spriteSurface = pygame.Surface((self.textWidth, self.textHeight), pygame.SRCALPHA, 32)
+                            spriteSurface.fill((0, 0, 0, 0))
+                            whiteColor = (255, 255, 255, 255)
+                            blackColor = (0, 0, 0, 255)
+                            for i in range(self.textHeight):
+                                for j in range(self.textWidth):
+                                    if sprite[i, j]:  # this is always false
+                                        if color == 0:
+                                            spriteSurface.set_at((j, i), blackColor)
+                                        else:
+                                            spriteSurface.set_at((j, i), whiteColor)
+
+                    self._surface.blit(spriteSurface, (x, y))
+                    x += self.textWidth + self.textSpaceWidth
+
 
             def setFont(self, fontFilePath, width, height, space):
-                raise NotImplementedError()
+                self.textBitmapSource = fontFilePath
+                self.textBitmapFile = open(self.textBitmapSource, 'rb')
+                self.textWidth = width
+                self.textHeight = height
+                self.textSpaceWidth = space
+                self.textBitmap = bytearray(self.textWidth)
+                self.textCharCount = os.stat(self.textBitmapSource)[6] // self.textWidth
 
             def update(self):
                 upscaled_surface = pygame.transform.scale(self._surface, (self.width * 10, self.height * 10))
