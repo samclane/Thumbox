@@ -6,8 +6,11 @@ Thumbox is designed to aid game devs in distributing their thumby games on Thumb
 
 
 ### Requirements
-1. Python 3.9 or higher
-2. Pygame 2.3.0 or higher
+
+Major requirements are 
+- Python 3
+- Pygame
+- numpy
 
 ### How do I use it?
 1. Download `thumbox.py`
