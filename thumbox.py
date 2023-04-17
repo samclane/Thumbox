@@ -191,12 +191,11 @@ class Thumby:
 
             def drawLine(self, x1, y1, x2, y2, color):
                 color = (255, 255, 255) if color == 1 else (0, 0, 0)
-                self._surface.set_at((x1, y1), color)
-                self._surface.set_at((x2, y2), color)
+                pygame.draw.line(self._surface, color, (x1, y1), (x2, y2))
 
             def drawFilledRectangle(self, x, y, w, h, color):
                 color = (255, 255, 255) if color == 1 else (0, 0, 0)
-                pygame.draw.rect(self._surface, color, (x, y, w, h))
+                pygame.draw.rect(self._surface, color, (x, y, w, h), 0)
 
             def drawRectangle(self, x, y, w, h, color):
                 color = (255, 255, 255) if color == 1 else (0, 0, 0)
