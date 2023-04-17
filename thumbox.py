@@ -343,13 +343,14 @@ class Thumby:
         def play(self, freq, duration):
             self._freq = freq
             sample_rate = 44100  # sampling rate in Hz
-            samples = (
+            samples_mono = (
                 np.sin(
                     2 * np.pi * np.arange(sample_rate * duration) * freq / sample_rate
                 )
             ).astype(np.float32)
-            pygame.mixer.init(frequency=sample_rate, size=-16, channels=1)
-            sound = pygame.sndarray.make_sound(samples)
+            samples_stereo = np.ascontiguousarray(np.vstack((samples_mono, samples_mono)).T)
+            pygame.mixer.init(frequency=sample_rate, size=-16, channels=2)
+            sound = pygame.sndarray.make_sound(samples_stereo)
             sound.play()
 
         def playBlocking(self, freq, duration):
