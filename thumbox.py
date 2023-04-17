@@ -64,7 +64,12 @@ class Thumby:
                 return keys[self.button]
 
             def justPressed(self):
-                raise NotImplementedError()
+                events = pygame.event.get()
+                for event in events:
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == self.button:
+                            return True
+                return False
 
     def inputPressed(self):
         for event in pygame.event.get():
@@ -82,14 +87,18 @@ class Thumby:
         return keys[pygame.K_UP] or keys[pygame.K_DOWN] or keys[pygame.K_LEFT] or keys[pygame.K_RIGHT]
 
     def dpadJustPressed(self):
-        raise NotImplementedError()
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.KEYDOWN:
+                if event.key in [pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT]:
+                    return True
+        return False
 
     def actionPressed(self):
-        raise NotImplementedError()
+        return self.buttonA.pressed() or self.buttonB.pressed()
 
     def actionJustPressed(self):
-        raise NotImplementedError()
-
+        return self.buttonA.justPressed() or self.buttonB.justPressed()
     class Sprite:
         def __init__(self, width, height, bitmapData, x=0, y=0, key=-1, mirrorX=0, mirrorY=0):
             self.width = width
@@ -100,12 +109,13 @@ class Thumby:
             self.key = key
             self.mirrorX = mirrorX
             self.mirrorY = mirrorY
+            self._frame = 0
 
         def getFrame(self):
-            raise NotImplementedError()
+            return self._frame
 
         def setFrame(self, frame):
-            raise NotImplementedError()
+            self._frame = frame
 
     class ThumbyGraphics:
         def __init__(self):
@@ -178,7 +188,11 @@ class Thumby:
                 self._surface.fill(color)
 
             def brightness(self, brightness):
-                raise NotImplementedError()
+                current_pixels = pygame.surfarray.pixels3d(self._surface)
+                current_pixels[:, :, 0] = current_pixels[:, :, 0] * brightness
+                adjusted_pixels = np.clip(current_pixels, 0, 255).astype(np.uint8)
+                adjusted_surface = pygame.surfarray.make_surface(adjusted_pixels)
+                self._surface.blit(adjusted_surface, (0, 0))
 
             def setPixel(self, x: int , y: int, color: Literal[0, 1]):
                 if color == 1:
@@ -206,7 +220,9 @@ class Thumby:
                 self.drawSprite(sprite)
 
             def blitWithMask(self, bitmapData, x, y, width, height, key, mirrorX, mirrorY, maskBitmapData):
-                raise NotImplementedError()
+                sprite = Thumby.Sprite(width, height, bitmapData, x, y, key, mirrorX, mirrorY)
+                maskSprite = Thumby.Sprite(width, height, maskBitmapData, x, y, key, mirrorX, mirrorY)
+                self.drawSpriteWithMask(sprite, maskSprite)
 
             def drawSprite(self, sprite):
                 surface = pygame.Surface((sprite.width, sprite.height), pygame.SRCALPHA, 32)
@@ -230,23 +246,62 @@ class Thumby:
                 self._surface.blit(surface, (sprite.x, sprite.y), (0, 0, sprite.width, sprite.height))
 
             def drawSpriteWithMask(self, sprite, maskSprite):
-                raise NotImplementedError()
+                surface = pygame.Surface((sprite.width, sprite.height), pygame.SRCALPHA, 32)
+                mask_surface = pygame.Surface((sprite.width, sprite.height), pygame.SRCALPHA, 32)
+                bits_per_byte = 8
+                for i in range((sprite.width * (sprite.height + 7) // 8)):
+                    byte = sprite.bitmapData[i] if len(sprite.bitmapData) > i else 0
+                    mask_byte = maskSprite.bitmapData[i] if len(maskSprite.bitmapData) > i else 0
+
+                    for j in range(bits_per_byte):
+                        idx = i * bits_per_byte + j
+                        x = i % sprite.width
+                        y = 8 * (i // sprite.width) + j
+
+                        # Get the color value from the bytearray (white or black)
+                        bit = (byte >> j) & 1
+                        mask_bit = (mask_byte >> j) & 1
+                        color = (255, 255, 255, 255) if bit else (0, 0, 0, 0)
+                        mask_color = (255, 255, 255, 255) if mask_bit else (0, 0, 0, 0)
+
+                        if sprite.key == -1 and maskSprite.key == -1:
+                            surface.set_at((x, y), color)
+                            mask_surface.set_at((x, y), mask_color)
+                        elif sprite.key != bit and maskSprite.key != mask_bit:
+                            surface.set_at((x, y), color)
+                            mask_surface.set_at((x, y), mask_color)
+
+                surface.blit(mask_surface, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+                self._surface.blit(surface, (sprite.x, sprite.y), (0, 0, sprite.width, sprite.height))
 
     class ThumbyAudio:
+        def __init__(self):
+            self._freq = 0
+
         def play(self, freq, duration):
-            raise NotImplementedError()
+            self._freq = freq
+            sample_rate = 44100  # sampling rate in Hz
+            samples = (np.sin(2*np.pi*np.arange(sample_rate*duration)*freq/sample_rate)).astype(np.float32)
+            pygame.mixer.init(frequency=sample_rate, size=-16, channels=1)
+            sound = pygame.sndarray.make_sound(samples)
+            sound.play()
 
         def playBlocking(self, freq, duration):
-            raise NotImplementedError()
+            self.play(freq, duration)
+            while pygame.mixer.get_busy():
+                pygame.time.wait(100)
 
         def stop(self):
-            raise NotImplementedError()
+            pygame.mixer.music.stop()
 
         def setEnabled(self, setting):
-            raise NotImplementedError()
+            if setting:
+                pygame.mixer.unpause()
+            else:
+                pygame.mixer.pause()
 
         def set(self, freq):
-            raise NotImplementedError()
+            self._freq = freq
 
     class ThumbyLink:
         def send(self, data):
