@@ -167,11 +167,13 @@ class Thumby:
 
                 for char in stringToPrint:
                     charBitmap = ord(char) - 0x20
-
+                    spriteSurface = pygame.Surface(
+                        (self.textWidth, self.textHeight), pygame.SRCALPHA, 32
+                    )
                     if 0 <= charBitmap <= maxChar:
                         if (
-                            0 < x + self.textWidth < screenWidth
-                            and 0 < y + self.textHeight < screenHeight
+                            0 <= x + self.textWidth <= screenWidth
+                            and 0 <= y + self.textHeight <= screenHeight
                         ):
                             sprite = np.zeros(
                                 (self.textHeight, self.textWidth), dtype=bool
@@ -185,9 +187,7 @@ class Thumby:
                                         & (1 << (i & 0x07))
                                     ) != 0
 
-                            spriteSurface = pygame.Surface(
-                                (self.textWidth, self.textHeight), pygame.SRCALPHA, 32
-                            )
+
                             spriteSurface.fill((0, 0, 0, 0))
                             whiteColor = (255, 255, 255, 255)
                             blackColor = (0, 0, 0, 255)
