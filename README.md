@@ -13,19 +13,21 @@ Major requirements are
 - numpy
 
 ### How do I use it?
-1. Download `thumbox.py`
-2. Place it in the same directory as your `game.py`
+1. Download `thumbox.py` and `font5x7.bin` from this repo
+2. Place them in the same directory as your `game.py`
     a. If you don't have your game downloaded yet, create a `game.py` file and copy the code from the online emulator into the file.
 3. Monkey-patch your game to use Thumbox insead of Thumby, like so:
 
 ```python
-# rest of imports
-...
-# import thumby
+# imports...
+import thumbox
+
 # Create the Emulator object
 thumby = thumbox.Thumby()
 graphics = thumby.graphics
 button = thumby.button
+micropython = thumbox.Micropython()
+time = thumbox.Time()
 # rest of monkey-patching
 ...
 # rest of code

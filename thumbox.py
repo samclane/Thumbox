@@ -15,6 +15,11 @@ class Time:
         return int(time.time() * 1000)
 
 
+class Micropython:
+    def viper(self, func):
+        return func
+
+
 class Thumby:
     def __init__(self):
         self.hardware = self.ThumbyHardware()
@@ -348,7 +353,9 @@ class Thumby:
                     2 * np.pi * np.arange(sample_rate * duration) * freq / sample_rate
                 )
             ).astype(np.float32)
-            samples_stereo = np.ascontiguousarray(np.vstack((samples_mono, samples_mono)).T)
+            samples_stereo = np.ascontiguousarray(
+                np.vstack((samples_mono, samples_mono)).T
+            )
             pygame.mixer.init(frequency=sample_rate, size=-16, channels=2)
             sound = pygame.sndarray.make_sound(samples_stereo)
             sound.play()
