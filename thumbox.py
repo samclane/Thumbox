@@ -219,6 +219,10 @@ class Thumby:
                 pygame.display.flip()
                 if self._fps != 0:
                     time.sleep(1 / self._fps)
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()
 
             def setFPS(self, FPS: int = 0) -> None:
                 self._fps = FPS
