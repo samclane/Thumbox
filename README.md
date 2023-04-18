@@ -35,5 +35,15 @@ time = thumbox.Time()
 
 To see a full example, check out the `example.py` game in this folder.
 
+### Compiling your game
+After you've monkey-patched your game and confirmed you can run it through Python, you can compile it into a standalone executable. To do this, you'll need to install `pyinstaller` and run the following command:
+
+* Windows
+```powershell
+pyinstaller example.py --onefile --add-data font5x7.bin;.
+```
+
+Replace `example.py` with the name of your game file.
+
 ### Contributing
 We are in development and really need contributors to reach 100% completion. Feel free to reach out to me on Github or make a PR

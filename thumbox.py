@@ -2,8 +2,12 @@ from typing import Literal
 import pygame
 import time
 import os
+import sys
 import numpy as np
 import json
+
+if getattr(sys, "frozen", False):
+    os.chdir(sys._MEIPASS)
 
 pygame.init()
 
