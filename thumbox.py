@@ -253,7 +253,7 @@ class Thumby:
 
             def drawFilledRectangle(self, x, y, w, h, color):
                 color = (255, 255, 255) if color == 1 else (0, 0, 0)
-                pygame.draw.rect(self._surface, color, (x, y, w, h), 0)
+                pygame.draw.rect(self._surface, color, (x, y, w, h))
 
             def drawRectangle(self, x, y, w, h, color):
                 color = (255, 255, 255) if color == 1 else (0, 0, 0)
