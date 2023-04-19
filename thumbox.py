@@ -1,17 +1,16 @@
-from typing import Literal
-import pygame
-import time
 import os
 import sys
-import numpy as np
+import time
 import json
+import numpy as np
+from typing import Literal
+
+import pygame
 
 if getattr(sys, "frozen", False):
     os.chdir(sys._MEIPASS)
 
 pygame.init()
-
-# Thumby emulator module
 
 
 class Time:
@@ -37,13 +36,10 @@ class Thumby:
         self.buttonR = self.button.buttonR
 
         self.graphics = self.ThumbyGraphics()
-
         self.display = self.graphics.display
-        # self.sprite = self.ThumbySprite()
         self.audio = self.ThumbyAudio()
 
         self.link = self.ThumbyLink()
-
         self.saveData = self.ThumbySaves()
 
     class ThumbyHardware:
@@ -165,7 +161,7 @@ class Thumby:
             @property
             def _white(self):
                 return (self._brightness, self._brightness, self._brightness, 255)
-            
+
             @property
             def _black(self):
                 return (0, 0, 0, 255)
@@ -196,8 +192,6 @@ class Thumby:
                                         & (1 << (i & 0x07))
                                     ) != 0
 
-
-                            spriteSurface.fill((0, 0, 0, 0))
                             for i in range(self.textHeight):
                                 for j in range(self.textWidth):
                                     if sprite[i, j]:
