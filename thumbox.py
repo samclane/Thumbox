@@ -159,7 +159,16 @@ class Thumby:
                 self._screen = pygame.display.set_mode(
                     (self.width * 10, self.height * 10)
                 )
+                self._brightness = 255
                 self.setFont("font5x7.bin", 5, 7, 1)
+
+            @property
+            def _white(self):
+                return (self._brightness, self._brightness, self._brightness, 255)
+            
+            @property
+            def _black(self):
+                return (0, 0, 0, 255)
 
             def drawText(self, stringToPrint, x, y, color):
                 screenWidth, screenHeight = self._surface.get_size()
@@ -189,15 +198,13 @@ class Thumby:
 
 
                             spriteSurface.fill((0, 0, 0, 0))
-                            whiteColor = (255, 255, 255, 255)
-                            blackColor = (0, 0, 0, 255)
                             for i in range(self.textHeight):
                                 for j in range(self.textWidth):
                                     if sprite[i, j]:
                                         if color == 0:
-                                            spriteSurface.set_at((j, i), blackColor)
+                                            spriteSurface.set_at((j, i), self._black)
                                         else:
-                                            spriteSurface.set_at((j, i), whiteColor)
+                                            spriteSurface.set_at((j, i), self._white)
 
                     self._surface.blit(spriteSurface, (x, y))
                     x += self.textWidth + self.textSpaceWidth
@@ -228,35 +235,31 @@ class Thumby:
                 self._fps = FPS
 
             def fill(self, color: Literal[0, 1]):
-                color = (255, 255, 255) if color == 1 else (0, 0, 0)
+                color = self._white if color == 1 else self._black
                 self._surface.fill(color)
 
             def brightness(self, brightness):
-                current_pixels = pygame.surfarray.pixels3d(self._surface)
-                current_pixels[:, :, 0] = current_pixels[:, :, 0] * brightness
-                adjusted_pixels = np.clip(current_pixels, 0, 255).astype(np.uint8)
-                adjusted_surface = pygame.surfarray.make_surface(adjusted_pixels)
-                self._surface.blit(adjusted_surface, (0, 0))
+                self._brightness = (brightness / 127) * 255
 
             def setPixel(self, x: int, y: int, color: Literal[0, 1]):
                 if color == 1:
-                    self._surface.set_at((x, y), (255, 255, 255))
+                    self._surface.set_at((x, y), self._white)
                 elif color == 0:
-                    self._surface.set_at((x, y), (0, 0, 0))
+                    self._surface.set_at((x, y), self._black)
 
             def getPixel(self, x, y):
                 self._surface.get_at((x, y))
 
             def drawLine(self, x1, y1, x2, y2, color):
-                color = (255, 255, 255) if color == 1 else (0, 0, 0)
+                color = self._white if color == 1 else self._black
                 pygame.draw.line(self._surface, color, (x1, y1), (x2, y2))
 
             def drawFilledRectangle(self, x, y, w, h, color):
-                color = (255, 255, 255) if color == 1 else (0, 0, 0)
+                color = self._white if color == 1 else self._black
                 pygame.draw.rect(self._surface, color, (x, y, w, h))
 
             def drawRectangle(self, x, y, w, h, color):
-                color = (255, 255, 255) if color == 1 else (0, 0, 0)
+                color = self._white if color == 1 else self._black
                 pygame.draw.rect(self._surface, color, (x, y, w, h), 1)
 
             def blit(self, bitmapData, x, y, width, height, key, mirrorX, mirrorY):
@@ -299,7 +302,7 @@ class Thumby:
 
                         # Get the color value from the bytearray (white or black)
                         bit = (byte >> j) & 1
-                        color = (255, 255, 255, 255) if bit else (0, 0, 0, 0)
+                        color = self._white if bit else self._black
                         if sprite.key == -1:
                             # Set the pixel color on the surface
                             surface.set_at((x, y), color)
@@ -334,8 +337,8 @@ class Thumby:
                         # Get the color value from the bytearray (white or black)
                         bit = (byte >> j) & 1
                         mask_bit = (mask_byte >> j) & 1
-                        color = (255, 255, 255, 255) if bit else (0, 0, 0, 0)
-                        mask_color = (255, 255, 255, 255) if mask_bit else (0, 0, 0, 0)
+                        color = self._white if bit else self._black
+                        mask_color = self._white if mask_bit else self._black
 
                         if sprite.key == -1 and maskSprite.key == -1:
                             surface.set_at((x, y), color)
