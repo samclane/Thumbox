@@ -12,6 +12,10 @@ if getattr(sys, "frozen", False):
 
 pygame.init()
 
+WIDTH = 72
+HEIGHT = 40
+SCALE = 10
+
 
 class Time:
     def tick_ms(self):
@@ -147,13 +151,13 @@ class Thumby:
 
         class Display:
             def __init__(self):
-                self.width = 72
-                self.height = 40
+                self.width = WIDTH
+                self.height = HEIGHT
 
                 self._fps = 0  # non-limiting
                 self._surface = pygame.Surface((self.width, self.height))
                 self._screen = pygame.display.set_mode(
-                    (self.width * 10, self.height * 10)
+                    (self.width * SCALE, self.height * SCALE)
                 )
                 self._brightness = 255
                 self.setFont("font5x7.bin", 5, 7, 1)
@@ -290,7 +294,6 @@ class Thumby:
                 for i in range((sprite.width * (sprite.height + 7) // 8)):
                     byte = sprite.bitmapData[i] if len(sprite.bitmapData) > i else 0
                     for j in range(bits_per_byte):
-                        idx = i * bits_per_byte + j
                         x = i % sprite.width
                         y = 8 * (i // sprite.width) + j
 
@@ -324,7 +327,6 @@ class Thumby:
                     )
 
                     for j in range(bits_per_byte):
-                        idx = i * bits_per_byte + j
                         x = i % sprite.width
                         y = 8 * (i // sprite.width) + j
 
