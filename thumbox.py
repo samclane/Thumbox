@@ -223,7 +223,7 @@ class Thumby:
                 self._screen.blit(upscaled_surface, (0, 0))
                 pygame.display.flip()
                 if self._fps != 0:
-                    time.sleep(1 / self._fps)
+                    pygame.time.wait(1000 // self._fps)
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         pygame.quit()
